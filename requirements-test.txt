@@ -1,0 +1,5 @@
+pytest
+pytest-homeassistant-custom-component>=0.12.8
+pytest-asyncio
+pytest-cov
+boto3>=1.28.0 

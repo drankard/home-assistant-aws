@@ -8,7 +8,7 @@ This integration provides a service interface for interacting with Amazon Web Se
 1. Make sure [HACS](https://hacs.xyz/) is installed in your Home Assistant instance
 2. Add this repository to HACS as a custom repository:
    - Go to HACS > Integrations > ⋮ > Custom repositories
-   - Add URL: `https://github.com/yourusername/home-assistant-aws`
+   - Add URL: `https://github.com/drankard/home-assistant-aws`
    - Category: Integration
 3. Click Install
 4. Restart Home Assistant
@@ -66,6 +66,27 @@ data:
 ### Event: aws_boto3_response
 
 When `sync: true` is specified, an event `aws_boto3_response` will be fired with the API response.
+
+## Development
+
+### Testing
+
+To run tests locally:
+
+1. Install test dependencies:
+   ```bash
+   pip install -r requirements-test.txt
+   ```
+
+2. Run the tests:
+   ```bash
+   pytest
+   ```
+
+3. Run tests with coverage report:
+   ```bash
+   pytest --cov=custom_components.aws
+   ```
 
 ## Security Notes
 
