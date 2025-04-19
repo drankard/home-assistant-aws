@@ -7,16 +7,22 @@ This integration provides a service interface for interacting with Amazon Web Se
 ### HACS (Recommended)
 1. Make sure [HACS](https://hacs.xyz/) is installed in your Home Assistant instance
 2. Add this repository to HACS as a custom repository:
-   - Go to HACS > Integrations > ⋮ > Custom repositories
+   - Go to HACS > Integrations > ⋮ (three dots menu in top right) > Custom repositories
    - Add URL: `https://github.com/drankard/home-assistant-aws`
    - Category: Integration
-3. Click Install
-4. Restart Home Assistant
+   - Click "ADD"
+3. **Important**: After adding the repository, you must download it:
+   - Click on "AWS Integration" in the list of custom repositories
+   - Click "DOWNLOAD" in the bottom right corner
+   - Wait for installation to complete
+4. Restart Home Assistant from the Configuration menu
+5. After restart, confirm the integration is available in Settings > Devices & Services > Add Integration
 
 ### Manual Installation
-1. Download this repository
-2. Copy the `custom_components/aws` directory to your Home Assistant `custom_components` directory
-3. Restart Home Assistant
+1. Download this repository as a ZIP file
+2. Extract the ZIP file
+3. Copy the `custom_components/aws` directory to your Home Assistant `custom_components` directory
+4. Restart Home Assistant
 
 ## Configuration
 

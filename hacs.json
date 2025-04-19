@@ -3,5 +3,9 @@
   "render_readme": true,
   "domain": "aws",
   "country": "ALL",
-  "homeassistant": "2023.8.0"
+  "homeassistant": "2023.8.0",
+  "iot_class": "cloud_push",
+  "documentation": "https://github.com/drankard/home-assistant-aws",
+  "issue_tracker": "https://github.com/drankard/home-assistant-aws/issues",
+  "category": "integration"
 } 

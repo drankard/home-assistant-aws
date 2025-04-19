@@ -3,6 +3,8 @@
   "name": "AWS",
   "version": "1.0.0",
   "config_flow": true,
+  "documentation": "https://github.com/drankard/home-assistant-aws",
+  "issue_tracker": "https://github.com/drankard/home-assistant-aws/issues",
   "requirements": ["boto3>=1.37.37"],
   "codeowners": [],
   "iot_class": "cloud_push"
