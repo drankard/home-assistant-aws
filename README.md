@@ -73,6 +73,83 @@ data:
 
 When `sync: true` is specified, an event `aws_boto3_response` will be fired with the API response.
 
+## Automation Examples
+
+### Check S3 Bucket Status Daily
+```yaml
+# configuration.yaml or automations.yaml
+automation:
+  - alias: "Daily S3 Bucket Check"
+    description: "Check S3 buckets every morning and notify if count changes"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    action:
+      - service: aws.boto3
+        data:
+          client: s3
+          method: list_buckets
+          sync: true
+      - wait_for_trigger:
+          - platform: event
+            event_type: aws_boto3_response
+        timeout: 
+          seconds: 30
+      - if:
+          - condition: template
+            value_template: "{{ trigger.event.data.response.Buckets | length > 5 }}"
+        then:
+          - service: notify.mobile_app
+            data:
+              title: "AWS S3 Alert"
+              message: "You have {{ trigger.event.data.response.Buckets | length }} S3 buckets"
+        else:
+          - service: persistent_notification.create
+            data:
+              title: "S3 Bucket Status"
+              message: "All good! You have {{ trigger.event.data.response.Buckets | length }} S3 buckets"
+```
+
+### Monitor EC2 Instance Status
+```yaml
+automation:
+  - alias: "EC2 Instance Monitor"
+    description: "Check if specific EC2 instance is running and notify if not"
+    trigger:
+      - platform: time_pattern
+        hours: "/2"  # Every 2 hours
+    action:
+      - service: aws.boto3
+        data:
+          client: ec2
+          method: describe_instance_status
+          params:
+            InstanceIds:
+              - i-1234567890abcdef0
+            IncludeAllInstances: true
+          sync: true
+      - wait_for_trigger:
+          - platform: event
+            event_type: aws_boto3_response
+        timeout: 
+          seconds: 30
+      - if:
+          - condition: template
+            value_template: >
+              {% set statuses = trigger.event.data.response.InstanceStatuses %}
+              {% if statuses | length == 0 or statuses[0].InstanceState.Name != 'running' %}
+                true
+              {% else %}
+                false
+              {% endif %}
+        then:
+          - service: notify.mobile_app
+            data:
+              title: "EC2 Instance Alert"
+              message: "Your EC2 instance is not running! Please check AWS console."
+              data:
+                priority: high
+
 ## Development
 
 ### Testing
