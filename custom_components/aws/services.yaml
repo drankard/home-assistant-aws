@@ -1,0 +1,39 @@
+boto3:
+  name: Call AWS Boto3 API
+  description: Call any AWS service API using boto3
+  fields:
+    client:
+      name: Client
+      description: AWS service client name (e.g. s3, ec2, lambda)
+      required: true
+      example: "s3"
+      selector:
+        text:
+    method:
+      name: Method
+      description: Client method to call
+      required: true
+      example: "list_buckets"
+      selector:
+        text:
+    params:
+      name: Parameters
+      description: Parameters to pass to the method
+      required: false
+      example: '{"Bucket": "my-bucket", "Key": "my-file.txt"}'
+      selector:
+        object:
+    region_name:
+      name: Region
+      description: AWS region to use (overrides default)
+      required: false
+      example: "us-west-2"
+      selector:
+        text:
+    sync:
+      name: Synchronous
+      description: Whether to wait for response and fire an event
+      required: false
+      default: false
+      selector:
+        boolean: 

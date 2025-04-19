@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "AWS Configuration",
+        "description": "Enter your AWS credentials and region.",
+        "data": {
+          "aws_access_key_id": "AWS Access Key ID",
+          "aws_secret_access_key": "AWS Secret Access Key",
+          "region_name": "AWS Region"
+        }
+      }
+    },
+    "error": {},
+    "abort": {}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AWS Options",
+        "data": {
+          "region_name": "AWS Region"
+        }
+      }
+    }
+  }
+}

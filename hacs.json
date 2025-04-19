@@ -1,0 +1,7 @@
+{
+  "name": "AWS Integration",
+  "render_readme": true,
+  "domain": "aws",
+  "country": "ALL",
+  "homeassistant": "2023.8.0"
+} 

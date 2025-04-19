@@ -1,0 +1,9 @@
+{
+  "domain": "aws",
+  "name": "AWS",
+  "version": "1.0.0",
+  "config_flow": true,
+  "requirements": ["boto3>=1.28.0"],
+  "codeowners": [],
+  "iot_class": "cloud_push"
+}
