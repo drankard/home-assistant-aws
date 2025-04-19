@@ -71,7 +71,23 @@ When `sync: true` is specified, an event `aws_boto3_response` will be fired with
 
 ### Testing
 
-To run tests locally:
+#### Basic Testing
+For quick and simple tests that don't require the full Home Assistant test infrastructure:
+
+1. Use simple unittest tests:
+   ```bash
+   python -m unittest tests/simple_test.py
+   ```
+
+   This runs basic tests that verify:
+   - Core functionality works
+   - AWS boto3 calls are made correctly
+   - Integration structure is proper
+
+2. This approach is faster and requires fewer dependencies than full pytest setup.
+
+#### Full Test Suite
+To run tests with the full Home Assistant test framework:
 
 1. Install test dependencies:
    ```bash
