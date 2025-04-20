@@ -1,0 +1,117 @@
+# Example automation: Manage EC2 instance (start/stop)
+#
+# This automation demonstrates:
+# 1. Accepting input to start or stop a specific EC2 instance
+# 2. Calling the AWS boto3 service with proper parameters
+# 3. Waiting for the response using a correlation ID
+# 4. Processing the response and sending a notification
+#
+# To use this automation:
+# 1. Copy this file to your /config/automations/ directory
+# 2. Adjust the notification service as needed for your setup
+# 3. Trigger the automation via an event with the required parameters:
+#    - action: "start" or "stop"
+#    - instance_id: your EC2 instance ID (e.g., "i-0123456789abcdef0")
+
+alias: "AWS: Manage EC2 Instance"
+description: "Starts or stops an EC2 instance and notifies of the result"
+trigger:
+  - platform: event
+    event_type: manage_ec2_instance
+    
+action:
+  # Step 1: Retrieve parameters from the event
+  - variables:
+      action: "{{ trigger.event.data.action }}"
+      instance_id: "{{ trigger.event.data.instance_id }}"
+      correlation_id: "{{ now().strftime('%Y%m%d%H%M%S') }}_ec2_{{ action }}"
+      
+  # Step 2: Validate input parameters
+  - if:
+      - condition: template
+        value_template: "{{ action not in ['start', 'stop'] }}"
+    then:
+      - service: persistent_notification.create
+        data:
+          title: "EC2 Management Error"
+          message: "Invalid action: {{ action }}. Must be 'start' or 'stop'."
+      - stop: "Invalid action"
+          
+  - if:
+      - condition: template
+        value_template: "{{ not instance_id }}"
+    then:
+      - service: persistent_notification.create
+        data:
+          title: "EC2 Management Error"
+          message: "No instance_id provided"
+      - stop: "Missing instance_id"
+  
+  # Step 3: Determine method name based on action
+  - variables:
+      method_name: >
+        {% if action == 'start' %}
+          start_instances
+        {% else %}
+          stop_instances
+        {% endif %}
+      
+  # Step 4: Call the AWS boto3 service to manage the EC2 instance
+  - service: aws.boto3
+    data:
+      client: "ec2"
+      method: "{{ method_name }}"
+      params:
+        InstanceIds:
+          - "{{ instance_id }}"
+      sync: true
+      correlation_id: "{{ correlation_id }}"
+  
+  # Step 5: Wait for the response from AWS
+  - wait_for_trigger:
+      - platform: event
+        event_type: aws_boto3_response
+        event_data:
+          correlation_id: "{{ correlation_id }}"
+    timeout:
+      seconds: 30
+    continue_on_timeout: false
+    
+  # Step 6: Store the trigger result for processing
+  - variables:
+      result: "{{ wait.trigger.event.data }}"
+      
+  # Step 7: Check if there was an error in the response
+  - if:
+      - condition: template
+        value_template: "{{ 'error' in result }}"
+    then:
+      - service: persistent_notification.create
+        data:
+          title: "EC2 {{ action | title }} Error"
+          message: "Failed to {{ action }} EC2 instance {{ instance_id }}: {{ result.error }}"
+    else:
+      # Step 8: Process the response and notify of success
+      - variables:
+          current_state: >
+            {% if action == 'start' %}
+              {% set state = result.response.StartingInstances[0].CurrentState.Name %}
+            {% else %}
+              {% set state = result.response.StoppingInstances[0].CurrentState.Name %}
+            {% endif %}
+            {{ state }}
+      
+      - service: persistent_notification.create
+        data:
+          title: "EC2 {{ action | title }} Success"
+          message: |
+            Successfully initiated {{ action }} for EC2 instance {{ instance_id }}
+            Current state: {{ current_state }}
+          
+      # Optional: Log the result to Home Assistant logs
+      - service: system_log.write
+        data:
+          message: "EC2 instance {{ instance_id }} {{ action }} operation successful. Current state: {{ current_state }}"
+          level: info
+
+mode: single 
