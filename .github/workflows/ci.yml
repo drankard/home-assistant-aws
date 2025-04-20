@@ -46,16 +46,15 @@ jobs:
       - name: Create prerelease
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          # Generate version based on date and run number
-          VERSION="${VERSION_PREFIX}.$(date +'%Y%m%d').${{ github.run_number }}"
-          echo "Using version: $VERSION"
+          # Generate version based on date and GitHub run number
+          VERSION="${VERSION_PREFIX}.${{ github.run_number }}"
+          echo "Using version: $VERSION (with GitHub run #${{ github.run_number }})"
           
-          # Create new release with both a version tag and the "latest" label
+          # Create new release with a version tag
           gh release create "v$VERSION" \
             --title "Development Build v$VERSION" \
             --notes "Automated development build from main branch" \
             --prerelease \
-            --latest \
             aws.zip LICENSE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
