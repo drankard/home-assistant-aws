@@ -11,20 +11,15 @@ permissions:
   packages: write
 
 jobs:
-  test-and-release:
+  test:
     runs-on: ubuntu-latest
-    env:
-      VERSION_PREFIX: 0.1
-    strategy:
-      matrix:
-        python-version: [3.11, 3.12, 3.13]
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.13
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.13'
       
       - name: Install dependencies
         run: |
@@ -34,9 +29,22 @@ jobs:
       - name: Run tests
         run: |
           pytest
+
+  release:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERSION_PREFIX: 0.1
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
       
       - name: Create ZIP package
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           mkdir -p release/custom_components
           cp -r custom_components/aws release/custom_components/
@@ -44,9 +52,8 @@ jobs:
           zip -r ../aws.zip .
       
       - name: Create prerelease
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          # Generate version based on date and GitHub run number
+          # Generate version based on GitHub run number
           VERSION="${VERSION_PREFIX}.${{ github.run_number }}"
           echo "Using version: $VERSION (with GitHub run #${{ github.run_number }})"
           
