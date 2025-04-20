@@ -1,6 +1,6 @@
 # AWS Integration Examples
 
-This directory contains example automations that demonstrate how to use the AWS integration with Home Assistant.
+These example automations demonstrate how to use the AWS integration with Home Assistant.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ This directory contains example automations that demonstrate how to use the AWS 
 
 ## Examples
 
-### List S3 Buckets (`list_s3_buckets.yaml`)
+### List S3 Buckets (`aws_list_s3_buckets.yaml`)
 
 This automation demonstrates how to:
 - Call the AWS boto3 service to list all S3 buckets
@@ -20,7 +20,7 @@ This automation demonstrates how to:
 - Automatically at 12:00 PM daily
 - Manually by firing an event `list_s3_buckets_request`
 
-### Manage EC2 Instance (`manage_ec2_instance.yaml`) 
+### Manage EC2 Instance (`aws_manage_ec2_instance.yaml`) 
 
 This automation demonstrates how to:
 - Start or stop an EC2 instance
