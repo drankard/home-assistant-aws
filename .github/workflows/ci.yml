@@ -75,8 +75,8 @@ jobs:
           
           # Create new release with a version tag
           gh release create "v$VERSION" \
-            --title "Development Build v$VERSION" \
-            --notes "Automated development build from main branch" \
+            --title "v$VERSION" \
+            --notes "Automated build from main branch" \
             --prerelease \
             aws.zip LICENSE
         env:
