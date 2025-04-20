@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  homeassistant:
+    container_name: homeassistant_aws_test
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./mounted-config:/config
+      - ../custom_components:/config/custom_components
+    environment:
+      - TZ=UTC
+    restart: unless-stopped 

@@ -1,7 +1,11 @@
 venv/
 .pytest_cache/
+__pycache__/
 .coverage/
 .env
 .env.local
 .env.development.local
 .env.test.local
+
+# Ignore data directory containing runtime files
+/docker-test/mounted-config/

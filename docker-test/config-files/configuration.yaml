@@ -1,0 +1,28 @@
+default_config:
+
+# AWS Integration Configuration
+aws:
+
+# Configure frontend for easier viewing
+frontend:
+  themes: {}
+  
+# Set up logger for debugging
+logger:
+  default: info
+  logs:
+    custom_components.aws: debug
+
+# Automations are empty by default
+automation: !include automations.yaml
+
+# Enable Home Assistant API
+api:
+
+# Enable recording of Home Assistant history
+recorder:
+  purge_keep_days: 5
+
+notify:
+  - name: mobile_app
+    platform: mobile_app

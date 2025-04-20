@@ -1,0 +1,26 @@
+alias: AWS STS Identity
+description: Retrieves AWS identity information using STS get_caller_identity and sends a notification
+trigger: []
+condition: []
+action:
+  - service: aws.boto3
+    metadata: {}
+    data:
+      sync: true
+      correlation_id: sts_identity_request
+      client: sts
+      method: get_caller_identity
+  - wait_for_trigger:
+      - platform: event
+        event_type: aws_boto3_response
+        event_data:
+          correlation_id: sts_identity_request
+    timeout: 5
+    continue_on_timeout: false
+  - service: notify.notify
+    metadata: {}
+    data:
+      message: >
+        Account ID: {{ wait.trigger.event.data.response.Account }}
+        AWS User: {{ wait.trigger.event.data.response.Arn }}
+mode: single 
