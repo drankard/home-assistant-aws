@@ -6,6 +6,6 @@
   "documentation": "https://github.com/drankard/home-assistant-aws",
   "issue_tracker": "https://github.com/drankard/home-assistant-aws/issues",
   "requirements": ["boto3>=1.37.37"],
-  "codeowners": [],
+  "codeowners": ["@drankard"],
   "iot_class": "cloud_push"
 }

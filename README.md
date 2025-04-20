@@ -6,17 +6,8 @@ This integration provides a service interface for interacting with Amazon Web Se
 
 ### HACS (Recommended)
 1. Make sure [HACS](https://hacs.xyz/) is installed in your Home Assistant instance
-2. Add this repository to HACS as a custom repository:
-   - Go to HACS > Integrations > ⋮ (three dots menu in top right) > Custom repositories
-   - Add URL: `https://github.com/drankard/home-assistant-aws`
-   - Category: Integration
-   - Click "ADD"
-3. **Important**: After adding the repository, you must download it:
-   - Click on "AWS Integration" in the list of custom repositories
-   - Click "DOWNLOAD" in the bottom right corner
-   - Wait for installation to complete
-4. Restart Home Assistant from the Configuration menu
-5. After restart, confirm the integration is available in Settings > Devices & Services > Add Integration
+2. In HACS, add this repository as a custom repository (category: Integration)
+3. Download the integration and restart Home Assistant
 
 ### Manual Installation
 1. Download this repository as a ZIP file
@@ -46,27 +37,17 @@ Call any AWS API using boto3.
 | params | Parameters to pass to the method | No | {"Bucket": "my-bucket"} |
 | region_name | AWS region (overrides default) | No | "us-west-2" |
 | sync | Wait for response and fire event | No | true |
+| correlation_id | Unique ID for this request (auto-generated if not provided) | No | "my-request-id" |
 
 ### Examples
 
-#### List S3 Buckets
+#### Basic STS Get Caller Identity
 ```yaml
 service: aws.boto3
 data:
-  client: s3
-  method: list_buckets
+  client: sts
+  method: get_caller_identity
   sync: true
-```
-
-#### Start an EC2 Instance
-```yaml
-service: aws.boto3
-data:
-  client: ec2
-  method: start_instances
-  params:
-    InstanceIds:
-      - i-1234567890abcdef0
 ```
 
 ### Event: aws_boto3_response
@@ -75,102 +56,13 @@ When `sync: true` is specified, an event `aws_boto3_response` will be fired with
 
 ## Automation Examples
 
-### Check S3 Bucket Status Daily
-```yaml
-# configuration.yaml or automations.yaml
-automation:
-  - alias: "Daily S3 Bucket Check"
-    description: "Check S3 buckets every morning and notify if count changes"
-    trigger:
-      - platform: time
-        at: "07:00:00"
-    action:
-      - service: aws.boto3
-        data:
-          client: s3
-          method: list_buckets
-          sync: true
-      - wait_for_trigger:
-          - platform: event
-            event_type: aws_boto3_response
-        timeout: 
-          seconds: 30
-      - if:
-          - condition: template
-            value_template: "{{ trigger.event.data.response.Buckets | length > 5 }}"
-        then:
-          - service: notify.mobile_app
-            data:
-              title: "AWS S3 Alert"
-              message: "You have {{ trigger.event.data.response.Buckets | length }} S3 buckets"
-        else:
-          - service: persistent_notification.create
-            data:
-              title: "S3 Bucket Status"
-              message: "All good! You have {{ trigger.event.data.response.Buckets | length }} S3 buckets"
-```
-
-### Monitor EC2 Instance Status
-```yaml
-automation:
-  - alias: "EC2 Instance Monitor"
-    description: "Check if specific EC2 instance is running and notify if not"
-    trigger:
-      - platform: time_pattern
-        hours: "/2"  # Every 2 hours
-    action:
-      - service: aws.boto3
-        data:
-          client: ec2
-          method: describe_instance_status
-          params:
-            InstanceIds:
-              - i-1234567890abcdef0
-            IncludeAllInstances: true
-          sync: true
-      - wait_for_trigger:
-          - platform: event
-            event_type: aws_boto3_response
-        timeout: 
-          seconds: 30
-      - if:
-          - condition: template
-            value_template: >
-              {% set statuses = trigger.event.data.response.InstanceStatuses %}
-              {% if statuses | length == 0 or statuses[0].InstanceState.Name != 'running' %}
-                true
-              {% else %}
-                false
-              {% endif %}
-        then:
-          - service: notify.mobile_app
-            data:
-              title: "EC2 Instance Alert"
-              message: "Your EC2 instance is not running! Please check AWS console."
-              data:
-                priority: high
+A complete automation example using the AWS STS identity API is available in the `examples/aws_sts_identity_automation.yaml` file.
 
 ## Development
 
 ### Testing
 
-#### Basic Testing
-For quick and simple tests that don't require the full Home Assistant test infrastructure:
-
-1. Use simple unittest tests:
-   ```bash
-   python -m unittest tests/simple_test.py
-   ```
-
-   This runs basic tests that verify:
-   - Core functionality works
-   - AWS boto3 calls are made correctly
-   - Integration structure is proper
-
-2. This approach is faster and requires fewer dependencies than full pytest setup.
-
-#### Full Test Suite
-To run tests with the full Home Assistant test framework:
+The integration includes pytest-based tests that verify core functionality:
 
 1. Install test dependencies:
    ```bash
@@ -182,15 +74,33 @@ To run tests with the full Home Assistant test framework:
    pytest
    ```
 
-3. Run tests with coverage report:
-   ```bash
-   pytest --cov=custom_components.aws
-   ```
+The tests cover:
+- Service registration
+- Successful AWS API calls
+- Error handling
+- Response storage and retrieval
+- Event firing
 
-## Security Notes
+## Security Best Practices
 
-Store your AWS credentials securely and use an IAM account with minimal permissions needed for your use case.
+### AWS IAM Security
 
-## License
+This integration requires AWS credentials to function. Follow these best practices to ensure secure usage:
 
-This project is licensed under the MIT License.
+1. **Use Least Privilege IAM Policies**
+   - **NEVER** use Administrator access for this integration
+   - Create dedicated IAM users with only the specific permissions needed
+   - Start with zero permissions and add only what's required for your specific use case
+   - Use AWS IAM Access Analyzer to audit and refine permissions
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`pytest`)
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+We use semantic versioning with standard `vX.Y.Z` format for all tags.

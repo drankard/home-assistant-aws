@@ -22,7 +22,3 @@ api:
 # Enable recording of Home Assistant history
 recorder:
   purge_keep_days: 5
-
-notify:
-  - name: mobile_app
-    platform: mobile_app

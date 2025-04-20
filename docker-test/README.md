@@ -1,19 +1,10 @@
 # Docker Test Environment for Home Assistant AWS Integration
 
-This directory contains a Docker-based test environment for the Home Assistant AWS Integration.
+This Docker setup is specifically designed for **testing purposes** of the Home Assistant AWS custom component. It provides a quick way to set up a containerized Home Assistant instance with the custom component already mounted and ready for testing.
 
-## Structure
+## Developer Quick Start
 
-- `config/` - Contains configuration template files for Home Assistant
-- `data/` - Contains all runtime data and the `.storage` directory (git-ignored)
-- `docker-compose.yml` - Docker Compose configuration
-- `Dockerfile` - Builds the container with the setup script
-- `setup.sh` - Setup script that runs inside the container
-- `cleanup.sh` - Script to clean up unnecessary files
-
-## Usage
-
-1. **Start the environment**:
+1. **Start the test environment**:
    ```bash
    docker-compose up -d
    ```
@@ -21,35 +12,28 @@ This directory contains a Docker-based test environment for the Home Assistant A
 2. **Access Home Assistant**:
    Open http://localhost:8123 in your browser
 
-3. **Login**:
-   - Username: admin
-   - Password: Password is derived from a hash in setup.sh
+3. **Testing Your Changes**:
+   - Any changes to the custom component in `../custom_components` are mounted in the container
+   - After making changes, you need to restart Home Assistant for them to take effect
+   - Restart Home Assistant inside the container using one of these methods:
+     ```bash
+     # Option 1: Using the built-in restart script (easiest)
+     docker exec homeassistant_aws_test restart-ha
+     
+     # Option 2: Restart the container (slower but always works)
+     docker restart homeassistant_aws_test
+     ```
+   - Use this environment to develop and test your code without affecting your main Home Assistant instance
+   - You can add your own automations to test the component functionality
 
-## Cleanup
+## Example Automations
 
-When you're done, stop the container and clean up:
-
-```bash
-./cleanup.sh
-```
-
-The cleanup script:
-- Stops any running containers
-- Removes all files in the data directory (except for an empty `.storage` directory)
-- Removes any other unnecessary files
-- Ensures the directory structure remains intact
+Check the `examples` directory for sample automations that demonstrate how to use the AWS component. These examples are a great starting point to understand the component's capabilities.
 
 ## Technical Details
 
-- The docker-compose.yml:
-  - Builds the Docker image from the Dockerfile
-  - Mounts `./data` to `/data` in the container for all runtime data
-  - Mounts individual configuration files from `./config` to `/data` in the container
-  - Mounts `../custom_components` to `/data/custom_components` for the AWS integration
-
-- The setup script:
-  - Creates necessary directories and files
-  - Sets up Home Assistant authentication
-  - Ensures the AWS integration is enabled
-
-- All runtime files are stored in the `data` directory, making cleanup easy 
+- AWS integration is mounted from `../custom_components` to `/config/custom_components`
+- Configuration files are mounted from local `mounted-config` directory
+- Container restarts automatically unless stopped manually
+- Home Assistant version: 2024.4 
+- Developer mode is enabled with auto-reloading of custom components 
