@@ -6,9 +6,15 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   test-and-release:
     runs-on: ubuntu-latest
+    env:
+      VERSION_PREFIX: 0.1
     strategy:
       matrix:
         python-version: [3.11, 3.12, 3.13]
@@ -39,12 +45,17 @@ jobs:
       
       - name: Create prerelease
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
-          files: |
-            LICENSE
-            *.zip 
+        run: |
+          # Generate version based on date and run number
+          VERSION="${VERSION_PREFIX}.$(date +'%Y%m%d').${{ github.run_number }}"
+          echo "Using version: $VERSION"
+          
+          # Create new release with both a version tag and the "latest" label
+          gh release create "v$VERSION" \
+            --title "Development Build v$VERSION" \
+            --notes "Automated development build from main branch" \
+            --prerelease \
+            --latest \
+            aws.zip LICENSE
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
