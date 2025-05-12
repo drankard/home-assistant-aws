@@ -1,4 +1,4 @@
-FROM homeassistant/home-assistant:2025.4
+FROM homeassistant/home-assistant:2025.5
 
 # Copy setup script and make it executable
 COPY entrypoint.sh /entrypoint.sh
